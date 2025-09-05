@@ -5,10 +5,12 @@ const mongoose = require('mongoose');
 const Listing = require("./models/listing.js");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync.js");
+const ExpressError = require("./utils/ExpressError.js");
+const { listingSchema } = require("./schema.js");
 
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
-
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -31,14 +33,17 @@ async function main() {
 
 //default route
 app.get("/", (req,res)=>{
-    res.send("Welcome to Wanderlust");
+    res.redirect("/listings");
 })
 
 //index route
-app.get("/listings", async (req,res)=>{
+app.get("/listings", wrapAsync(async (req,res,next)=>{
     const listings = await Listing.find();
+    if(!listings) {
+        return next(new ExpressError(404, "Listings Not Found"));
+    }
     res.render("listings/index", { listings });
-});
+}));
 
 //New route
 app.get("/listings/new", (req,res)=>{
@@ -46,45 +51,73 @@ app.get("/listings/new", (req,res)=>{
 });
 
 //show route
-app.get("/listings/:id", async (req,res)=>{
+app.get("/listings/:id", wrapAsync(async (req,res,next)=>{
     const listing = await Listing.findById(req.params.id);
+    if(!listing) {
+        return next(new ExpressError(404, "Listing Not Found"));
+    }
     res.render("listings/show.ejs", { listing });
-});
+}));
 
 //new route
-app.post("/listings", async (req, res) => {
+app.post("/listings", wrapAsync(async (req, res, next) => {
+    if(!req.body.listing || Object.keys(req.body.listing).length === 0) {
+        return next(new ExpressError(400, "Listing data is required"));
+    }
+
+    const { error } = listingSchema.validate(req.body);
+    if (error) {
+        return next(new ExpressError(400, error.details[0].message));
+    }
+
     const newListing = new Listing(req.body.listing);
     await newListing.save();
     res.redirect("/listings");
-});
+}));
 
 //edit route
-app.get("/listings/:id/edit", async (req, res) => {
+app.get("/listings/:id/edit", wrapAsync(async (req, res, next) => {
     const listing = await Listing.findById(req.params.id);
+    if(!listing) {
+        return next(new ExpressError(404, "Listing Not Found"));
+    }
     res.render("listings/edit.ejs", { listing });
-});
+}));
 
 //update route
-app.put("/listings/:id", async (req, res) => {
+app.put("/listings/:id", wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
-    // Update each field from the form, including those that were empty before
-    for (let key in req.body.listing) {
-        if (listing[key] !== undefined) {
-            listing[key] = req.body.listing[key];
-        }else{
-            listing[key] = req.body.listing[key];
-        }
+    if(!listing) {
+        return next(new ExpressError(404, "Listing Not Found"));
     }
+    const { error } = listingSchema.validate(req.body);
+    if (error) {
+        return next(new ExpressError(400, error.details[0].message));
+    }
+
+    Object.assign(listing, req.body.listing);
     await listing.save();
     res.redirect(`/listings/${listing._id}`);
+}));
+
+//destroy route
+app.delete("/listings/:id", wrapAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const listing = await Listing.findByIdAndDelete(id);
+    if(!listing) {
+        return next(new ExpressError(404, "Listing Not Found"));
+    }
+    res.redirect("/listings");
+}));
+
+app.use((req, res, next) => {
+    next(new ExpressError(404, "Page Not Found"));
 });
 
-//destry route
-app.delete("/listings/:id", async (req, res) => {
-    const { id } = req.params;
-    await Listing.findByIdAndDelete(id);
-    res.redirect("/listings");
+app.use((err, req, res, next) => {
+    const { statusCode = 500, message = "Something went wrong" } = err;
+    res.status(statusCode).render("error", { message });
 });
 
 app.listen(8080, () => {
