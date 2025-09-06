@@ -31,17 +31,25 @@ async function main() {
     await mongoose.connect(MONGO_URL);
 }
 
+//validate listing
+const validateListing = (req, res, next) => {
+    const { error } = listingSchema.validate(req.body);
+    if (error) {
+        let errMsg = error.details.map(el => el.message).join(",");
+        return next(new ExpressError(400, errMsg));
+    }else{
+        next();
+    }
+}
+
 //default route
 app.get("/", (req,res)=>{
-    res.redirect("/listings");
-})
+    res.send("Welcome to WanderLust! Go to /listings to see all listings.");
+});
 
 //index route
-app.get("/listings", wrapAsync(async (req,res,next)=>{
+app.get("/listings", validateListing, wrapAsync(async (req,res,next)=>{
     const listings = await Listing.find();
-    if(!listings) {
-        return next(new ExpressError(404, "Listings Not Found"));
-    }
     res.render("listings/index", { listings });
 }));
 
@@ -51,7 +59,7 @@ app.get("/listings/new", (req,res)=>{
 });
 
 //show route
-app.get("/listings/:id", wrapAsync(async (req,res,next)=>{
+app.get("/listings/:id", validateListing, wrapAsync(async (req,res,next)=>{
     const listing = await Listing.findById(req.params.id);
     if(!listing) {
         return next(new ExpressError(404, "Listing Not Found"));
@@ -60,14 +68,9 @@ app.get("/listings/:id", wrapAsync(async (req,res,next)=>{
 }));
 
 //new route
-app.post("/listings", wrapAsync(async (req, res, next) => {
+app.post("/listings",validateListing, wrapAsync(async (req, res, next) => {
     if(!req.body.listing || Object.keys(req.body.listing).length === 0) {
         return next(new ExpressError(400, "Listing data is required"));
-    }
-
-    const { error } = listingSchema.validate(req.body);
-    if (error) {
-        return next(new ExpressError(400, error.details[0].message));
     }
 
     const newListing = new Listing(req.body.listing);
@@ -76,24 +79,17 @@ app.post("/listings", wrapAsync(async (req, res, next) => {
 }));
 
 //edit route
-app.get("/listings/:id/edit", wrapAsync(async (req, res, next) => {
+app.get("/listings/:id/edit", validateListing, wrapAsync(async (req, res, next) => {
     const listing = await Listing.findById(req.params.id);
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
     res.render("listings/edit.ejs", { listing });
 }));
 
 //update route
-app.put("/listings/:id", wrapAsync(async (req, res, next) => {
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
     if(!listing) {
         return next(new ExpressError(404, "Listing Not Found"));
-    }
-    const { error } = listingSchema.validate(req.body);
-    if (error) {
-        return next(new ExpressError(400, error.details[0].message));
     }
 
     Object.assign(listing, req.body.listing);
