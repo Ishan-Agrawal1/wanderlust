@@ -2,13 +2,12 @@ const express = require('express');
 const app = express();
 const path = require("path");
 const mongoose = require('mongoose');
-const Listing = require("./models/listing.js");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
-const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema, reviewSchema } = require("./schema.js");
-const Review = require("./models/review.js");
+
+const listingRoutes = require("./routes/listing.js");
+const reviewRoutes = require("./routes/review.js");
 
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
@@ -32,127 +31,16 @@ async function main() {
     await mongoose.connect(MONGO_URL);
 }
 
-//validate listing
-const validateListing = (req, res, next) => {
-    const { error } = listingSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map(el => el.message).join(",");
-        return next(new ExpressError(400, errMsg));
-    }else{
-        next();
-    }
-}
-
-//validate review
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body);
-    if (error) {
-        let errMsg = error.details.map(el => el.message).join(",");
-        return next(new ExpressError(400, errMsg));
-    }else{
-        next();
-    }
-}
-
 //default route
 app.get("/", (req,res)=>{
     res.send("Welcome to WanderLust! Go to /listings to see all listings.");
 });
 
-//index route
-app.get("/listings", validateListing, wrapAsync(async (req,res,next)=>{
-    const listings = await Listing.find();
-    res.render("listings/index", { listings });
-}));
+// Use listing routes
+app.use("/listings", listingRoutes);
 
-//New route
-app.get("/listings/new", (req,res)=>{
-    res.render("listings/new");
-});
-
-//show route
-app.get("/listings/:id", validateListing, wrapAsync(async (req,res,next)=>{
-    const listing = await Listing.findById(req.params.id).populate("reviews");
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
-    res.render("listings/show.ejs", { listing });
-}));
-
-//new route
-app.post("/listings",validateListing, wrapAsync(async (req, res, next) => {
-    if(!req.body.listing || Object.keys(req.body.listing).length === 0) {
-        return next(new ExpressError(400, "Listing data is required"));
-    }
-
-    const newListing = new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
-}));
-
-//edit route
-app.get("/listings/:id/edit", validateListing, wrapAsync(async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id);
-    res.render("listings/edit.ejs", { listing });
-}));
-
-//update route
-app.put("/listings/:id", validateListing, wrapAsync(async (req, res, next) => {
-    const { id } = req.params;
-    const listing = await Listing.findById(id);
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
-
-    Object.assign(listing, req.body.listing);
-    await listing.save();
-    res.redirect(`/listings/${listing._id}`);
-}));
-
-//destroy route
-app.delete("/listings/:id", wrapAsync(async (req, res, next) => {
-    const { id } = req.params;
-    const listing = await Listing.findByIdAndDelete(id);
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
-    res.redirect("/listings");
-}));
-
-//reviews
-//post review route
-app.post("/listings/:id/reviews", validateReview, wrapAsync(async (req, res, next) => {
-    const listing = await Listing.findById(req.params.id);
-    const newReview = new Review(req.body.review);
-
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
-
-    listing.reviews.push(newReview);
-
-    await newReview.save();
-    await listing.save();
-    res.redirect(`/listings/${listing._id}`);
-}));
-
-//delete review route
-app.delete("/listings/:id/reviews/:reviewId", wrapAsync(async (req, res, next) => {
-    const { id, reviewId } = req.params;
-    const listing = await Listing.findById(id);
-    if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
-    }
-
-    const review = await Review.findById(reviewId);
-    if(!review) {
-        return next(new ExpressError(404, "Review Not Found"));
-    }
-
-    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${listing._id}`);
-}));
+// Use review routes
+app.use("/listings/:id/reviews", reviewRoutes);
 
 //catch-all route for undefined routes
 app.use((req, res, next) => {
