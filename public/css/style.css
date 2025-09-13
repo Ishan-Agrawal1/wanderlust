@@ -67,7 +67,7 @@ body{
 }
 
 /* cards */
-.card{
+.listings-card{
     border: none !important;
     margin-bottom: 1rem !important;
 }
@@ -125,3 +125,4 @@ body{
     gap: 1rem;
     margin-top: 1rem;
 }
+
