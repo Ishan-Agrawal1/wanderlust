@@ -5,9 +5,22 @@ const mongoose = require('mongoose');
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
+const session = require("express-session");
+const flash = require("connect-flash");
 
 const listingRoutes = require("./routes/listing.js");
 const reviewRoutes = require("./routes/review.js");
+
+const sessionOptions = {
+    secret: "mysecretkey", 
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: Date.now() + 1000 * 60 * 60 * 24, // 1 day
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        httpOnly: true,
+    }
+};
 
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
@@ -17,7 +30,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
-
+app.use(session(sessionOptions));
+app.use(flash());
 
 const MONGO_URL = "mongodb://127.0.0.1/wanderlust";
 
@@ -30,6 +44,12 @@ main()
 async function main() {
     await mongoose.connect(MONGO_URL);
 }
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
 
 //default route
 app.get("/", (req,res)=>{

@@ -32,7 +32,8 @@ router.get("/new", (req,res)=>{
 router.get("/:id", validateListing, wrapAsync(async (req,res,next)=>{
     const listing = await Listing.findById(req.params.id).populate("reviews");
     if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
+        req.flash("error", "Listing Not Found");
+        return res.redirect("/listings");
     }
     res.render("listings/show", { listing });
 }));
@@ -45,12 +46,17 @@ router.post("/",validateListing, wrapAsync(async (req, res, next) => {
 
     const newListing = new Listing(req.body.listing);
     await newListing.save();
+    req.flash("success", "Listing created successfully!");
     res.redirect("/listings");
 }));
 
 //edit route
 router.get("/:id/edit", validateListing, wrapAsync(async (req, res, next) => {
     const listing = await Listing.findById(req.params.id);
+    if (!listing) {
+        req.flash("error", "Listing Not Found");
+        return res.redirect("/listings");
+    }
     res.render("listings/edit.ejs", { listing });
 }));
 
@@ -59,11 +65,13 @@ router.put("/:id", validateListing, wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
     if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
+        req.flash("error", "Listing Not Found");
+        return res.redirect("/listings");
     }
 
     Object.assign(listing, req.body.listing);
     await listing.save();
+    req.flash("success", "Listing updated successfully!");
     res.redirect(`/listings/${listing._id}`);
 }));
 
@@ -72,8 +80,10 @@ router.delete("/:id", wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const listing = await Listing.findByIdAndDelete(id);
     if(!listing) {
-        return next(new ExpressError(404, "Listing Not Found"));
+        req.flash("error", "Listing Not Found");
+        return res.redirect("/listings");
     }
+    req.flash("success", "Listing deleted successfully!");
     res.redirect("/listings");
 }));
 
