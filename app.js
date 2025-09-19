@@ -49,17 +49,6 @@ async function main() {
     await mongoose.connect(MONGO_URL);
 }
 
-//session and flash middleware
-app.use(session(sessionOptions));
-app.use(flash());
-
-// flash locals middleware (must come after session and flash)
-app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    next();
-});
-
 //default route
 app.get("/", (req,res)=>{
     res.send("Welcome to WanderLust! Go to /listings to see all listings.");
@@ -73,6 +62,14 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
+
+// flash locals middleware (must come after session and flash)
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user;
+    next();
+});
 
 //serialize and deserialize user
 passport.serializeUser(User.serializeUser());
