@@ -7,10 +7,15 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
 const listingRoutes = require("./routes/listing.js");
 const reviewRoutes = require("./routes/review.js");
+const userRoutes = require("./routes/user.js");
 
+//session configuration
 const sessionOptions = {
     secret: "mysecretkey", 
     resave: false,
@@ -30,8 +35,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
-app.use(session(sessionOptions));
-app.use(flash());
+
 
 const MONGO_URL = "mongodb://127.0.0.1/wanderlust";
 
@@ -45,6 +49,11 @@ async function main() {
     await mongoose.connect(MONGO_URL);
 }
 
+//session and flash middleware
+app.use(session(sessionOptions));
+app.use(flash());
+
+// flash locals middleware (must come after session and flash)
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
@@ -56,8 +65,30 @@ app.get("/", (req,res)=>{
     res.send("Welcome to WanderLust! Go to /listings to see all listings.");
 });
 
+//session and flash middleware
+app.use(session(sessionOptions));
+app.use(flash());
+
+//passport configuration
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+//serialize and deserialize user
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+// Use user routes
+app.use("/", userRoutes);
+
 // Use listing routes
 app.use("/listings", listingRoutes);
+
+app.get("/fakeUser", async (req, res) => {
+    const user = new User({ username: "testuser", email: "testuser@example.com" });
+    const newUser = await User.register(user, "password123");
+    res.send(newUser);
+});
 
 // Use review routes
 app.use("/listings/:id/reviews", reviewRoutes);
