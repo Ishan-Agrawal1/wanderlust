@@ -54,9 +54,9 @@ async function main() {
 }
 
 //default route
-app.get("/", (req,res)=>{
-    res.send("Welcome to WanderLust! Go to /listings to see all listings.");
-});
+// app.get("/", (req,res)=>{
+//     res.send("Welcome to WanderLust! Go to /listings to see all listings.");
+// });
 
 //session and flash middleware
 app.use(session(sessionOptions));

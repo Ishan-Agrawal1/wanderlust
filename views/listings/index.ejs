@@ -1,7 +1,57 @@
 <% layout('./layouts/boilerplate.ejs') -%>
+<style>
+    
+</style>
 <body>
-    <h1>Property Listings</h1>
-    <div class="card-container row row-cols-lg-3 row-cols-md-2 row-cols-1">
+    <div id="filter" class="mt-3">
+        <div class="filters">
+            <i class="fa-solid fa-fire"></i>
+            <p>Trending</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-bed"></i>
+            <p>Rooms</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-mountain-city"></i>
+            <p>Iconic cities</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-mountain"></i>
+            <p>Mountains</p>
+        </div>
+        <div class="filters">
+            <i class="fa-brands fa-fort-awesome"></i>
+            <p>Castles</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-person-swimming"></i>
+            <p>Amazing pools</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-cow"></i>
+            <p>Farms</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-snowflake"></i> 
+            <p>Arctic</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-igloo"></i>
+            <p>Dome</p>
+        </div>
+        <div class="filters">
+            <i class="fa-solid fa-ship"></i>
+            <p>Houseboats</p>
+        </div>
+        <div class="tax-toggle">
+            <div class="form-check-reverse form-switch tax-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+                <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+            </div>
+        </div>
+    </div>
+    <div class="card-container row row-cols-lg-3 row-cols-md-2 row-cols-1 mt-3">
         <% for(let listing of listings) { %>
             <a href="/listings/<%= listing.id %>" class="listing-link">
                 <div class="card col listings-card mb-4">
@@ -21,11 +71,13 @@
                         <p class="card-text">
                             <b><%= listing.title %></b> 
                             <br>
-                            &#8377;<%= listing.price.toLocaleString("en-IN") %>
+                            <span style="font-weight: 600;">&#8377;<%= listing.price.toLocaleString("en-IN") %>/night (excl. taxes)</span>
+                            <span class="tax-data">&nbsp;+  &#8377;<%= (listing.price * 0.18).toLocaleString("en-IN") %> (18% GST)</span>
                         </p>
                     </div>
                 </div>
             </a>
         <% } %>
     </div>
+    <script src="/js/index.js"></script>
 </body>
