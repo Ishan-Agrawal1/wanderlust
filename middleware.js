@@ -1,4 +1,5 @@
 const Listing = require("./models/listing");
+const Review = require("./models/review");
 const ExpressError = require("./utils/ExpressError");
 const { listingSchema, reviewSchema } = require("./schema");
 
@@ -44,7 +45,8 @@ module.exports.isReviewAuthor = async (req, res, next) => {
 };
 
 module.exports.validateListing = (req, res, next) => {
-    const { error } = listingSchema.validate(req.body);
+    // Validate req.body.listing, not req.body directly
+    const { error } = listingSchema.validate(req.body.listing);
     if (error) {
         let errMsg = error.details.map(el => el.message).join(",");
         return next(new ExpressError(400, errMsg));

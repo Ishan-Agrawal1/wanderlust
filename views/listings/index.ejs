@@ -5,7 +5,17 @@
         <% for(let listing of listings) { %>
             <a href="/listings/<%= listing.id %>" class="listing-link">
                 <div class="card col listings-card mb-4">
-                    <img src="<%= listing.image %>" class="card-img-top"  style ="height: 20rem;" alt="<%= listing.title %>">
+                    <% 
+                        let imageSrc = 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60';
+                        if (listing.image) {
+                            if (typeof listing.image === 'string') {
+                                imageSrc = listing.image; // Old format: direct URL string
+                            } else if (listing.image.url) {
+                                imageSrc = listing.image.url; // New format: Cloudinary object
+                            }
+                        }
+                    %>
+                    <img src="<%= imageSrc %>" class="card-img-top"  style ="height: 20rem;" alt="<%= listing.title %>">
                     <div class="card-img-overlay"></div>
                     <div class="card-body">
                         <p class="card-text">

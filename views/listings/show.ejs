@@ -4,7 +4,17 @@
         <h1><%= listing.title %></h1>
     </div>
     <div class="card col-6 offset-3 listings-card mb-4">
-        <img src="<%= listing.image %>" class="card-img-top"  style ="height: 30vh;" alt="<%= listing.title %>">
+        <% 
+            let imageSrc = 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60';
+            if (listing.image) {
+                if (typeof listing.image === 'string') {
+                    imageSrc = listing.image; // Old format: direct URL string
+                } else if (listing.image.url) {
+                    imageSrc = listing.image.url; // New format: Cloudinary object
+                }
+            }
+        %>
+        <img src="<%= imageSrc %>" class="card-img-top"  style ="height: 30vh;" alt="<%= listing.title %>">
         <div class="card-body">
             <p class="card-text"><b><i>@<%= listing.owner.username %></i></b></p>
             <p class="card-text"><%= listing.description %></p>
@@ -33,10 +43,29 @@
             <hr/>
             <% if(currUser) { %>
             <h4>Leave a Review</h4>
-            <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
+                <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
                 <div class="mb-3 mt-3">
-                    <label for="rating" class="form-label">Rating:</label>
-                    <input type="range" class="form-range" id="rating" name="review[rating]" min="1" max="5" required>
+                    <fieldset class="starability-basic">
+                        <legend>Basic star rating:</legend>
+                        <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+
+                        <input type="radio" id="rate1" name="review[rating]" value="1" />
+                        <label for="rate1">1 star.</label>
+
+                        <input type="radio" id="rate2" name="review[rating]" value="2" />
+                        <label for="rate2">2 stars.</label>
+
+                        <input type="radio" id="rate3" name="review[rating]" value="3" />
+                        <label for="rate3">3 stars.</label>
+
+                        <input type="radio" id="rate4" name="review[rating]" value="4" />
+                        <label for="rate4">4 stars.</label>
+
+                        <input type="radio" id="rate5" name="review[rating]" value="5" />
+                        <label for="rate5">5 stars.</label>
+
+                        <span class="starability-focus-ring"></span>
+                    </fieldset>
                 </div>
                 <div class="mb-3">
                     <label for="comment" class="form-label">Comment:</label>
@@ -56,10 +85,10 @@
                 <div class="card mb-3 col-5 ms-3">
                     <div class="card-body">
                         <h5 class="card-title mt-3">@<%= review.author.username %></h5>
-                        <p class="card-text"><%= review.comment %></p>
-                        <p class="card-text">
-                            <%= '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating) %>
+                        <p class="starability-result card-text" data-rating="<%= review.rating %>">
+                            Rated: <%= review.rating %> stars
                         </p>
+                        <p class="card-text"><%= review.comment %></p>
                         <% if(currUser && currUser._id.equals(review.author._id)) { %>
                         <form class="mb-3" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
                             <button type="submit" class="btn btn-sm btn-dark">Delete Review</button>
