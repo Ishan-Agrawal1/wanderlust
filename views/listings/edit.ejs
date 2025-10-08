@@ -4,7 +4,7 @@
         <div class="col-8 offset-2">
             <h1>Edit your Listing</h1>
 
-            <form action="/listings/<%= listing._id %>?_method=PUT" method="POST" class="needs-validation" novalidate>
+            <form action="/listings/<%= listing._id %>?_method=PUT" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
                 <div class="mb-3">
                     <label for="title" class="form-label">Title:</label>
                     <input type="text" class="form-control" id="title" name="listing[title]" value="<%= listing.title %>" required>
@@ -19,6 +19,21 @@
                         Please provide a description for your listing.
                     </div>
                 </div>
+                
+                <div class="mb-3">
+                    <label for="currentImage" class="form-label">Current Image:</label>
+                    <br/>
+                    <img src="<%= originalImageURL %>" alt="Current Image"/>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">Upload new image:</label>
+                    <input type="file" class="form-control" id="image" name="listing[image]">
+                    <div class="invalid-feedback">
+                        Please provide an image for your listing.
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="mb-3 col-md-4">
                         <label for="price" class="form-label">Price:</label>
@@ -35,13 +50,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label">Image URL:</label>
-                    <input type="text" class="form-control" id="image" name="listing[image]" value="<%= listing.image %>" required>
-                    <div class="invalid-feedback">
-                        Please provide an image URL for your listing.
-                    </div>
-                </div>
+                
                 <div class="mb-3">
                     <label for="location" class="form-label">Location:</label>
                     <input type="text" class="form-control" id="location" name="listing[location]" value="<%= listing.location %>" required>
