@@ -188,3 +188,20 @@ body{
     background-color: #fe424d;;
     color: white;
 }
+
+.form-select{
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    background-color: white;
+    color: black;
+}
+
+.show-heading{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 1rem;
+}
+

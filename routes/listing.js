@@ -19,6 +19,38 @@ router
         wrapAsync(listingController.createListing)
     );
 
+//filters
+router.route("/trending")
+    .get(wrapAsync(listingController.trendingListings));
+
+router.route("/rooms")
+    .get(wrapAsync(listingController.roomListings));
+
+router.route("/iconic-cities")
+    .get(wrapAsync(listingController.iconicCitiesListings));
+
+router.route("/castles")
+    .get(wrapAsync(listingController.castleListings));
+
+router.route("/beaches")
+    .get(wrapAsync(listingController.beachListings));
+
+router.route("/mountains")
+    .get(wrapAsync(listingController.mountainListings));
+
+
+router.route("/farms")
+    .get(wrapAsync(listingController.farmListings));
+
+router.route("/domes")
+    .get(wrapAsync(listingController.domeListings));
+
+router.route("/arctic")
+    .get(wrapAsync(listingController.arcticListings));
+
+router.route("/houseboats")
+    .get(wrapAsync(listingController.houseboatListings));
+
 //New route
 router.route("/new")
     .get(isLoggedIn, listingController.renderNewForm);

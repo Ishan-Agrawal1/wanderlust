@@ -1,49 +1,67 @@
 <% layout('./layouts/boilerplate.ejs') -%>
-<style>
-    
-</style>
 <body>
     <div id="filter" class="mt-3">
-        <div class="filters">
-            <i class="fa-solid fa-fire"></i>
-            <p>Trending</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-bed"></i>
-            <p>Rooms</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-mountain-city"></i>
-            <p>Iconic cities</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-mountain"></i>
-            <p>Mountains</p>
-        </div>
-        <div class="filters">
-            <i class="fa-brands fa-fort-awesome"></i>
-            <p>Castles</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-person-swimming"></i>
-            <p>Amazing pools</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-cow"></i>
-            <p>Farms</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-snowflake"></i> 
-            <p>Arctic</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-igloo"></i>
-            <p>Dome</p>
-        </div>
-        <div class="filters">
-            <i class="fa-solid fa-ship"></i>
-            <p>Houseboats</p>
-        </div>
+        <form action="/listings/trending" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-fire"></i>
+                <p>Trending</p>
+            </div>
+        </form>
+        <form action="/listings/rooms" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-bed"></i>
+                <p>Rooms</p>
+            </div>
+        </form>
+        <form action="/listings/iconic-cities" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-mountain-city"></i>
+                <p>Iconic cities</p>
+            </div>
+        </form>
+        <form action="/listings/mountains" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-mountain"></i>
+                <p>Mountains</p>
+            </div>
+        </form>
+        <form action="/listings/castles" method="GET">
+            <div class="filters">
+                <i class="fa-brands fa-fort-awesome"></i>
+                <p>Castles</p>
+            </div>
+        </form>
+        <form action="/listings/beaches" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-person-swimming"></i>
+                <p>Beaches</p>
+            </div>
+        </form>
+        <form action="/listings/farms" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-cow"></i>
+                <p>Farms</p>
+            </div>
+        </form>
+        <form action="/listings/arctic" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-snowflake"></i>
+                <p>Arctic</p>
+            </div>
+        </form>
+        <form action="/listings/domes" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-igloo"></i>
+                <p>Dome</p>
+            </div>
+        </form>
+        <form action="/listings/houseboats" method="GET">
+            <div class="filters">
+                <i class="fa-solid fa-ship"></i>
+                <p>Houseboats</p>
+            </div>
+        </form>
+
         <div class="tax-toggle">
             <div class="form-check-reverse form-switch tax-switch">
                 <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
@@ -80,4 +98,18 @@
         <% } %>
     </div>
     <script src="/js/index.js"></script>
+    <script>
+        // Make filter divs clickable
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterDivs = document.querySelectorAll('.filters');
+            filterDivs.forEach(function(filterDiv) {
+                filterDiv.addEventListener('click', function() {
+                    const form = this.closest('form');
+                    if (form) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 </body>

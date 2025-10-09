@@ -41,7 +41,8 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 
 
-const MONGO_URL = "mongodb://127.0.0.1/wanderlust";
+// const MONGO_URL = "mongodb://127.0.0.1/wanderlust";
+const atlasUrl = process.env.ATLAS_URL;
 
 main()
     .then(() => {
@@ -50,7 +51,7 @@ main()
     .catch(err => console.log(err));
 
 async function main() {
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(atlasUrl);
 }
 
 //default route

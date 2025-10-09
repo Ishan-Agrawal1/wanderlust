@@ -9,6 +9,10 @@ const listingSchema = new Schema({
         url: String,
         filename: String
     },
+    category: {
+        type: String,
+        enum : ["Trending", "Rooms", "Iconic cities", "Mountains", "Castles", "Beach", "Farms", "Arctic", "Dome", "Houseboat"],
+    },
     price: { type: Number, required: true },
     location: { type: String, required: true },
     country: { type: String, required: true },

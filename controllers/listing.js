@@ -6,6 +6,56 @@ module.exports.index = async (req,res,next)=>{
     res.render("listings/index", { listings });
 }
 
+module.exports.trendingListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Trending"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.roomListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Rooms"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.iconicCitiesListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Iconic cities"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.castleListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Castles"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.beachListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Beach"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.mountainListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Mountains"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.farmListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Farms"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.arcticListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Arctic"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.domeListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Domes"});
+    res.render("listings/index", { listings });
+}
+
+module.exports.houseboatListings = async (req,res,next)=>{
+    const listings = await Listing.find({category: "Houseboat"});
+    res.render("listings/index", { listings });
+}
+
 module.exports.renderNewForm = (req,res)=>{
     res.render("listings/new");
 }
